@@ -1,0 +1,10 @@
+google-generativeai
+flask
+flask-cors
+python-dotenv
+requests
+google-cloud-api-keys
+wave
+gtts
+SpeechRecognition
+gunicorn

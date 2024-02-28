@@ -1,0 +1,32 @@
+# This Dockerfile builds the React client and API together
+
+# Build step #1: build the React front end
+FROM node:16-alpine as build-step
+WORKDIR /app
+ENV PATH /app/node_modules/.bin:$PATH
+COPY react-recorder/package.json react-recorder/package-lock.json ./
+COPY react-recorder/src ./src
+COPY react-recorder/public ./public
+COPY react-recorder/index.html ./
+RUN npm install
+RUN npm run build
+
+# Build step #2: build the API with the client as static files
+FROM python:3.9
+WORKDIR /app
+COPY --from=build-step /app/dist ./build
+
+RUN mkdir ./api
+
+# Set Google API Key as an environment variable
+ENV GOOGLE_API_KEY="AIzaSyDoFlHcY3FEyg6APANtcVXig7J-qIjcNGs"
+
+COPY app-server/requirements.txt app-server/server.py app-server/speech_recognizer.py ./api/
+COPY app-server/controllers/gemini_controller.py ./api/controllers/
+COPY app-server/models/gemini_initializer.py ./api/models/
+RUN pip install -r ./api/requirements.txt
+
+WORKDIR /app/api
+
+# Command to run the Flask server
+CMD ["python", "server.py"]

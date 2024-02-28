@@ -1,0 +1,20 @@
+version: "3.9"
+services:
+  server:
+    build: ./app-server
+    ports: 
+    - "80:5000"
+    volumes:
+    - ./app-server:/app
+    environment:
+      FLASK_env: development
+    command: bash -c "apt-get update && apt-get install -y ffmpeg && apt-get install flac && python server.py"
+  web:
+    build: ./client/my-app
+    ports:
+      - "3000:3000"
+    volumes:
+      - ./client/my-app:/user/src/app
+    depends_on:
+      - server
+    
